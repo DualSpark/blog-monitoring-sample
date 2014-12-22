@@ -2,52 +2,42 @@
 
 # from https://gist.github.com/jgeurts/3112065
 
-cd /home/vagrant
-wget https://launchpad.net/graphite/0.9/0.9.10/+download/graphite-web-0.9.10.tar.gz
-wget https://launchpad.net/graphite/0.9/0.9.10/+download/carbon-0.9.10.tar.gz
-wget https://launchpad.net/graphite/0.9/0.9.10/+download/whisper-0.9.10.tar.gz
-tar -zxvf graphite-web-0.9.10.tar.gz
-tar -zxvf carbon-0.9.10.tar.gz
-tar -zxvf whisper-0.9.10.tar.gz
-mv graphite-web-0.9.10 graphite
-mv carbon-0.9.10 carbon
-mv whisper-0.9.10 whisper
-rm graphite-web-0.9.10.tar.gz
-rm carbon-0.9.10.tar.gz
-rm whisper-0.9.10.tar.gz
-
-cd whisper
-sudo python setup.py install 
-cd ..
-
-cd carbon
-sudo python setup.py install
-cd /opt/graphite/conf
-sudo cp carbon.conf.example carbon.conf
-#sudo cp storage-schemas.conf.example storage-schemas.conf # needed since we overwrite it?
-echo -e "[stats] \npriority = 110\npattern = .*\nretentions = 10:2160,60:10080,600:262974" | sudo tee storage-schemas.conf
-
-cd /home/vagrant/graphite
 sudo apt-get install -y libapache2-mod-wsgi build-essential python-dev python-pip apache2 python-cairo python-memcache
 sudo pip install 'django<1.6'
-sudo pip install python-django-tagging
+sudo pip install django-tagging
 sudo pip install Twisted==13.0 # daemonize error
-sudo python check-dependencies.py
-sudo python setup.py install
 
-# https://www.digitalocean.com/community/tutorials/installing-and-configuring-graphite-and-statsd-on-an-ubuntu-12-04-vps
-sudo cp /home/vagrant/graphite/examples/example-graphite-vhost.conf /etc/apache2/sites-available/000-default.conf
+# http://graphite.readthedocs.org/en/latest/install-pip.html
+sudo pip install https://github.com/graphite-project/ceres/tarball/master
+sudo pip install whisper
+sudo pip install carbon
+sudo pip install graphite-web
+
+sudo cp /opt/graphite/webapp/graphite/local_settings.py.example /opt/graphite/webapp/graphite/local_settings.py
+
+echo -e "SECRET_KEY = 'UNSAFE_DEFAULT_foo'\nALLOWED_HOSTS = [ '*' ]\nTIME_ZONE = 'America/Los_Angeles'\nDEBUG = True\n" | sudo tee --append /opt/graphite/webapp/graphite/local_settings.py
+
+# overwrite stock apache site:
+sudo cp /opt/graphite/examples/example-graphite-vhost.conf /etc/apache2/sites-available/000-default.conf
+
 sudo cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/conf/graphite.wsgi
-sudo chown -R www-data:www-data /opt/graphite/storage
-sudo mkdir -p /etc/httpd/wsgi
-# edit /etc/apache2/sites-available/default
-sudo sed -i -e "s/WSGISocketPrefix run\/wsgi/WSGISocketPrefix \/etc\/httpd\/wsgi/g" /etc/apache2/sites-available/000-default.conf
-echo -e "SECRET_KEY = 'foobar555'\n ALLOWED_HOSTS = ['localhost']" | sudo tee >> /opt/graphite/webapp/graphite/settings.py
 
-# sed this in settings.py:
-# DATABASE_NAME = '/opt/graphite/storage/graphite.db'
+sudo sed -i -e "s/WSGISocketPrefix run\/wsgi/WSGISocketPrefix \/var\/run\/apache2\/wsgi/g" /etc/apache2/sites-enabled/000-default.conf
+sudo chown -R www-data:www-data /opt/graphite/
 
-sudo service apache2 restart
+# sketchy permission change:
+sudo sed -i -e "s/Require all denied/Require all granted/g" /etc/apache2/apache2.conf
+
+sudo /etc/init.d/apache2 reload
+cd /opt/graphite/webapp/graphite
+sudo python manage.py syncdb --noinput
+sudo chown -R www-data:www-data /opt/graphite/ # get the new database file
+
+sudo cp /opt/graphite/conf/storage-schemas.conf.example /opt/graphite/conf/storage-schemas.conf
+sudo cp /opt/graphite/conf/carbon.conf.example /opt/graphite/conf/carbon.conf
 
 sudo /opt/graphite/bin/carbon-cache.py start
 
+# sample data points: 
+echo "local.random.diceroll 6 `date +%s`" | nc -q0 localhost 2003
+echo "local.random.diceroll 3 `date +%s`" | nc -q0 localhost 2003
