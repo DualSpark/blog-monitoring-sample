@@ -14,8 +14,9 @@ Vagrant.configure(2) do |statsd|
   statsd.vm.provision :shell, path: "bootstrap.sh"
 
   statsd.vm.provider "virtualbox" do |vb|
-    vb.memory = 512
+    vb.memory = 768
     vb.cpus = 1
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
   end
 
 end

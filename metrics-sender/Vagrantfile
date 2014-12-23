@@ -12,4 +12,9 @@ Vagrant.configure(2) do |go_app|
 
   go_app.vm.provision :shell, path: "bootstrap.sh"
 
+  go_app.vm.provider "virtualbox" do |vb|
+    vb.memory = 768
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+  end
+
 end

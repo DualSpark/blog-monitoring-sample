@@ -27,7 +27,10 @@ The general flow:
   ./boom -n 1000 -q 5 http://localhost:9999 # send 1000 requests at 5/s
   ```
 
-3. See the results in graphite.  Open [localhost:8080](localhost:8080), open (path to be filled in)
+3. See the results in graphite.  Open [localhost:8080](http://localhost:8080), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
+
+[Graphite screenshot](graphite-screen.png?raw=true)
+
 
 ### How it works
 1. Every time the endpoint is hit, the metrics-sender web service sends a count increment to statsd.
