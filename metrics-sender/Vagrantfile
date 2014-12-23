@@ -1,0 +1,15 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |go_app|
+  go_app.vm.box = "ubuntu/trusty64"
+  go_app.vm.network :private_network, ip: "192.168.33.22"
+  go_app.vm.network "forwarded_port", guest: 9999, host: 9999
+
+  # golang app startup script
+  go_app.vm.provision "file", source: "./golang-app.conf", destination: "/home/vagrant/golang-app.conf"
+  go_app.vm.provision "file", source: "./hello", destination: "/home/vagrant/hello"
+
+  go_app.vm.provision :shell, path: "bootstrap.sh"
+
+end

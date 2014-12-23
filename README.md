@@ -14,7 +14,14 @@ Bash, requires statsd and graphite VMs up and running:
 ```bash
 echo "foo:1|c" | nc -u -w0 192.168.33.20 8125
 ```
-[statsd client for Go](https://github.com/cactus/go-statsd-client)
+
+Send stats from a simple program, using, [statsd client for Go](https://github.com/cactus/go-statsd-client):
+
+```bash
+GOOS=linux go build -o hello
+```
+
+Or just vagrant up on a new system?  TBD.
 
 ### Load generation
 [boom](https://github.com/rakyll/boom) to generate load.
