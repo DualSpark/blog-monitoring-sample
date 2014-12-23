@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# from https://gist.github.com/jgeurts/3112065
+# some from https://gist.github.com/jgeurts/3112065
 
 sudo apt-get install -y libapache2-mod-wsgi build-essential python-dev python-pip apache2 python-cairo python-memcache
 sudo pip install 'django<1.6'
@@ -31,13 +31,13 @@ sudo sed -i -e "s/Require all denied/Require all granted/g" /etc/apache2/apache2
 sudo /etc/init.d/apache2 reload
 cd /opt/graphite/webapp/graphite
 sudo python manage.py syncdb --noinput
-sudo chown -R www-data:www-data /opt/graphite/ # get the new database file
+sudo chown -R www-data:www-data /opt/graphite/ # get the newly created database file
 
 sudo cp /opt/graphite/conf/storage-schemas.conf.example /opt/graphite/conf/storage-schemas.conf
 sudo cp /opt/graphite/conf/carbon.conf.example /opt/graphite/conf/carbon.conf
 
 sudo /opt/graphite/bin/carbon-cache.py start
 
-# sample data points: 
+# sample data points:
 echo "local.random.diceroll 6 `date +%s`" | nc -q0 localhost 2003
 echo "local.random.diceroll 3 `date +%s`" | nc -q0 localhost 2003
