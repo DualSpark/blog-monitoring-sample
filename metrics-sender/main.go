@@ -10,7 +10,7 @@ import (
 var client *statsd.Client
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello world from my Go program!")
+	fmt.Fprintf(w, "Hello world!")
 	client.Inc("stat1", 1, 1.0)
 }
 
