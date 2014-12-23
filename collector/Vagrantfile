@@ -12,11 +12,14 @@ Vagrant.configure(2) do |statsd|
 
   # nodejs startup script
   statsd.vm.provision "file", source: "./nodejs.conf", destination: "/home/vagrant/nodejs.conf"
+  
+  statsd.vm.provision "file", source: "./config.js", destination: "/home/vagrant/config.js"
   # installs node.js, downloads statsd, starts the service
   statsd.vm.provision :shell, path: "bootstrap.sh"
 
   statsd.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "1024"]
+    vb.memory = 1024
+    vb.cpus = 2
   end
 
 end
