@@ -17,7 +17,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	log.Print("starting up")
 	var err error
-	client, err = statsd.New("192.168.33.20:8125", "test-client")
+	client, err = statsd.New("statsd.vagrant.dev:8125", "test-client")
 	// handle any errors
 	if err != nil {
 		log.Fatal(err)
