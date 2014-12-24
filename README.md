@@ -11,19 +11,12 @@ The general flow:
 ### Seeing it in action
 1. vagrant up:
   ```bash
-  cd collector
-  vagrant up
-
-  cd ../graphite
-  vagrant up
-
-  cd ../metrics-sender
   vagrant up
   ```
 
 2. provide a load:
   ``` bash
-  cd .. #go back to root of project
+  vagrant ssh goapp
   ./boom -n 1000 -q 5 http://localhost:9999 # send 1000 requests at 5/s
   ```
 
@@ -52,10 +45,10 @@ Bash: requires statsd and graphite VMs up and running.  This command sends the s
 echo "foo:1|c" | nc -u -w0 192.168.33.20 8125
 ```
 
-Web service: send stats from a simple program, using, [statsd client for Go](https://github.com/cactus/go-statsd-client):
+Web service: send stats from a simple program, using, [statsd client for Go](https://github.com/cactus/go-statsd-client).  The included executable is compiled for Linux so it runs in the Vagrant Linux VM.  If you're on a Mac you can install the Go tools and cross-compile for linux:
 
 ```bash
-GOOS=linux go build -o hello
+GOOS=linux go build -o main
 ```
 
 #### Load generation

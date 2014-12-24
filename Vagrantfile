@@ -59,6 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # golang app startup script
         go_app.vm.provision 'file', source: 'metrics-sender/golang-app.conf', destination: '/home/vagrant/golang-app.conf'
         go_app.vm.provision 'file', source: 'metrics-sender/main', destination: '/home/vagrant/main'
+        go_app.vm.provision 'file', source: 'metrics-sender/boom', destination: '/home/vagrant/boom'
 
         go_app.vm.provision :shell, path: 'metrics-sender/bootstrap.sh'
 
@@ -67,6 +68,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             vb.customize ['modifyvm', :id, '--cpuexecutioncap', '50']
         end
 
-    end 
+    end
 
 end
