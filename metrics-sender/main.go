@@ -17,6 +17,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	log.Print("starting up")
 	var err error
+	// Change this to use environment configs and provide statsd.vagrant.dev as default
 	client, err = statsd.New("statsd.vagrant.dev:8125", "test-client")
 	// handle any errors
 	if err != nil {
