@@ -9,31 +9,29 @@ The general flow:
 
 
 ### Seeing it in action
-1. vagrant up:
+1. Install the vagrant [landrush plugin](https://github.com/phinze/landrush):
   ```bash
-  cd collector
-  vagrant up
+  vagrant plugin install landrush
+  ```
+  This allows guests and the host to use DNS names instead of IP addresses.
 
-  cd ../graphite
-  vagrant up
-
-  cd ../metrics-sender
+2. Bring the machines up:
+  ```bash
   vagrant up
   ```
 
-2. provide a load:
+3. Provide a load.  [boom](https://github.com/rakyll/boom) is included in the goapp VM:
   ``` bash
-  cd .. #go back to root of project
+  vagrant ssh goapp
   ./boom -n 1000 -q 5 http://localhost:9999 # send 1000 requests at 5/s
   ```
 
-3. See the results in graphite.  Open [localhost:8080](http://localhost:8080), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
+4. See the results in graphite.  Open [graphite.vagrant.dev](http://graphite.vagrant.dev), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
 
 [Graphite screenshot](graphite-screen.png?raw=true)
 
-
 ### How it works
-1. Every time the endpoint is hit, the metrics-sender web service sends a count increment to statsd.
+1. Every time the Go web service's endpoint is hit, it sends a count increment to statsd.
 2. statsd aggregates the statistics and flushes it to graphite for storage.
 3. graphite receives, stores and makes the stats available via the web interface, as well as a JSON format.
 
@@ -49,14 +47,19 @@ Graphite web interface: can make and save graphs.
 Bash: requires statsd and graphite VMs up and running.  This command sends the stat format statsd accepts:
 
 ```bash
-echo "foo:1|c" | nc -u -w0 192.168.33.20 8125
+echo "foo:1|c" | nc -u -w0 statsd.vagrant.dev 8125
 ```
 
-Web service: send stats from a simple program, using, [statsd client for Go](https://github.com/cactus/go-statsd-client):
+Web service: send stats from a simple program, using, [statsd client for Go](https://github.com/cactus/go-statsd-client).  The included executable is compiled for Linux so it runs in the Vagrant Linux VM.  If you're on a Mac you can install the Go tools and cross-compile for linux:
 
 ```bash
-GOOS=linux go build -o hello
+GOOS=linux go build -o main
 ```
 
 #### Load generation
-[boom](https://github.com/rakyll/boom) can generate load.
+[boom](https://github.com/rakyll/boom) can generate load.  It's included in the goapp Vagrant VM.  Log in to the goapp VM and run it:
+
+```bash
+vagrant ssh goapp
+./boom -n 100 -q 5 http://localhost:9999/
+```
