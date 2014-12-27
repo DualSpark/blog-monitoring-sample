@@ -9,24 +9,29 @@ The general flow:
 
 
 ### Seeing it in action
-1. vagrant up:
+1. Install the vagrant [landrush plugin](https://github.com/phinze/landrush):
+  ```bash
+  vagrant plugin install landrush
+  ```
+  This allows guests and the host to use DNS names instead of IP addresses.
+
+2. Bring the machines up:
   ```bash
   vagrant up
   ```
 
-2. provide a load:
+3. Provide a load.  [boom](https://github.com/rakyll/boom) is included in the goapp VM:
   ``` bash
   vagrant ssh goapp
   ./boom -n 1000 -q 5 http://localhost:9999 # send 1000 requests at 5/s
   ```
 
-3. See the results in graphite.  Open [graphite.vagrant.dev](http://graphite.vagrant.dev), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
+4. See the results in graphite.  Open [graphite.vagrant.dev](http://graphite.vagrant.dev), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
 
 [Graphite screenshot](graphite-screen.png?raw=true)
 
-
 ### How it works
-1. Every time the endpoint is hit, the metrics-sender web service sends a count increment to statsd.
+1. Every time the Go web service's endpoint is hit, it sends a count increment to statsd.
 2. statsd aggregates the statistics and flushes it to graphite for storage.
 3. graphite receives, stores and makes the stats available via the web interface, as well as a JSON format.
 
