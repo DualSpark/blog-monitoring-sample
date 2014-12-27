@@ -20,7 +20,7 @@ The general flow:
   ./boom -n 1000 -q 5 http://localhost:9999 # send 1000 requests at 5/s
   ```
 
-3. See the results in graphite.  Open [localhost:8080](http://localhost:8080), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
+3. See the results in graphite.  Open [graphite.vagrant.dev](http://graphite.vagrant.dev), open Graphite->stats->test-client->stat1 to see the graph.  If the above boom command was run, it should report a load at five (requests a second).  This image shows the 5 req/s boom command followed by a 25/s command:
 
 [Graphite screenshot](graphite-screen.png?raw=true)
 
@@ -42,7 +42,7 @@ Graphite web interface: can make and save graphs.
 Bash: requires statsd and graphite VMs up and running.  This command sends the stat format statsd accepts:
 
 ```bash
-echo "foo:1|c" | nc -u -w0 192.168.33.20 8125
+echo "foo:1|c" | nc -u -w0 statsd.vagrant.dev 8125
 ```
 
 Web service: send stats from a simple program, using, [statsd client for Go](https://github.com/cactus/go-statsd-client).  The included executable is compiled for Linux so it runs in the Vagrant Linux VM.  If you're on a Mac you can install the Go tools and cross-compile for linux:
@@ -52,4 +52,9 @@ GOOS=linux go build -o main
 ```
 
 #### Load generation
-[boom](https://github.com/rakyll/boom) can generate load.
+[boom](https://github.com/rakyll/boom) can generate load.  It's included in the goapp Vagrant VM.  Log in to the goapp VM and run it:
+
+```bash
+vagrant ssh goapp
+./boom -n 100 -q 5 http://localhost:9999/
+```

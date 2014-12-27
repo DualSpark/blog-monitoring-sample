@@ -3,11 +3,16 @@ package main
 import (
 	"fmt"
 	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/kelseyhightower/envconfig"
 	"log"
 	"net/http"
 )
 
 var client *statsd.Client
+
+type Specification struct {
+	StatsdUrl string
+}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello world!")
@@ -17,13 +22,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	log.Print("starting up")
 	var err error
+
+	var s Specification
+	err = envconfig.Process("goapp", &s)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	if s.StatsdUrl == "" {
+		s.StatsdUrl = "statsd.vagrant.dev:8125"
+	}
 	// Change this to use environment configs and provide statsd.vagrant.dev as default
-	client, err = statsd.New("statsd.vagrant.dev:8125", "test-client")
-	// handle any errors
+	client, err = statsd.New(s.StatsdUrl, "test-client")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// make sure to clean up
 	defer client.Close()
 
 	http.HandleFunc("/", handler)            // redirect all urls to the handler function
